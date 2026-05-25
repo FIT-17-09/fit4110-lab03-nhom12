@@ -33,8 +33,11 @@ jobs:
       - name: Wait for mock servers
         run: npx wait-on http://localhost:4010/health http://localhost:4011/health --timeout 30000
 
-      - name: Run Newman contract tests
+      - name: Run Newman XML tests
         run: npm run test:mock
+
+      - name: Generate HTML report
+        run: npm run test:html
 
       - name: Show Prism logs on failure
         if: failure()
@@ -47,4 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: newman-reports
-          path: reports/
+          path: |
+            reports/*.xml
+            reports/*.html
+          if-no-files-found: warn

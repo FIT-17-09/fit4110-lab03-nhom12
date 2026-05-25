@@ -2,6 +2,12 @@ openapi: 3.1.0
 info:
   title: Smart Campus — IoT Ingestion API
   version: 0.3.0
+  contact:
+    name: Team IoT Ingestion
+    email: iot-team@campus.local
+
+  license:
+    name: CC0 1.0
   description: |
     Contract mẫu dùng cho FIT4110 Lab 03 — Postman, Mock Server và Contract Testing.
     Sinh viên có thể thay thế file này bằng openapi.yaml của service nhóm mình từ Lab 02.
