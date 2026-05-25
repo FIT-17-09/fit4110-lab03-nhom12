@@ -1,6 +1,11 @@
-ID,Folder,Endpoint,Method,Scenario,Input file/body,Expected status,Expected response check,Type,Pass/Fail,Evidence
-TC01,Functional,/health,GET,Service is alive,-,200,status=ok,functional,,
-TC02,Functional,/readings,POST,Create reading happy path,mock-data/sensor-reading-valid.json,201,"has reading_id, accepted=true",functional,,
-TC03,Negative,/readings,POST,Missing device_id,mock-data/sensor-reading-invalid-missing-device.json,400,Problem Details,negative,,
-TC04,Auth,/readings,POST,Missing token,mock-data/sensor-reading-valid.json,401,Problem Details,auth,,
-TC05,Boundary,/readings,POST,High temperature boundary,mock-data/sensor-reading-boundary.json,201/400,documented behavior,boundary,,
+ID,Folder,Endpoint,Method,Scenario,Expected status,Type,Pass/Fail
+TC01,Health,/health,GET,Service alive,200,functional,PASS
+TC02,Functional,/analysis/request,POST,Create analysis request,200,functional,PASS
+TC03,Auth,/analysis/request,POST,Missing token,401,auth,PASS
+TC04,Negative,/analysis/request,POST,Missing imageUrl,400,negative,PASS
+TC05,Negative,/analysis/request,POST,Wrong priority enum,422,negative,PASS
+TC06,Boundary,/analysis/request,POST,Large payload,200/422,boundary,PASS
+TC07,Boundary,/analysis/request,POST,Retry same idempotencyKey,200,boundary,PASS
+TC08,Functional,/analysis/config/{id},GET,Get config,200,functional,PASS
+TC09,Negative,/analysis/config/{id},GET,Config not found,404,negative,PASS
+TC10,Smoke,/analysis/request,POST,AI Vision → Core Business mock,200,consumer-side,PASS
