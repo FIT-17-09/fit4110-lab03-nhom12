@@ -2,55 +2,50 @@ name: Newman Contract Tests
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   newman:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: 20
 
       - name: Install dependencies
         run: npm install
 
-      - name: Lint OpenAPI contracts
+      - name: Lint contracts
         run: npm run lint:contracts
 
-      - name: Start Prism mock servers
+      - name: Start Prism servers
         run: |
-          nohup npm run mock:iot > prism-iot.log 2>&1 &
-          nohup npm run mock:vision > prism-vision.log 2>&1 &
+          nohup npx prism mock contracts/iot-ingestion.openapi.yaml -p 4010 --host 0.0.0.0 > prism-iot.log 2>&1 &
+          nohup npx prism mock contracts/ai-vision.openapi.yaml -p 4011 --host 0.0.0.0 > prism-ai.log 2>&1 &
+          sleep 15
 
-      - name: Wait for mock servers
-        run: npx wait-on http://localhost:4010/health http://localhost:4011/health --timeout 30000
+      - name: Check servers
+        run: |
+          curl http://localhost:4010/health
+          curl http://localhost:4011/health
 
-      - name: Run Newman XML tests
+      - name: Run Newman
         run: npm run test:mock
 
-      - name: Generate HTML report
-        run: npm run test:html
-
-      - name: Show Prism logs on failure
-        if: failure()
-        run: |
-          cat prism-iot.log || true
-          cat prism-vision.log || true
-
-      - name: Upload Newman reports
+      - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: newman-reports
-          path: |
-            reports/*.xml
-            reports/*.html
-          if-no-files-found: warn
+          name: reports
+          path: reports/
+
+      - name: Show Prism logs
+        if: failure()
+        run: |
+          cat prism-iot.log || true
+          cat prism-ai.log || true
